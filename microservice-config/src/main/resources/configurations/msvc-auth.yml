@@ -1,9 +1,9 @@
 server:
-  port: 8090
+  port: 9001
 
 spring:
   application:
-    name: msvc-student
+    name: msvc-auth
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/shoppingDb
@@ -15,6 +15,10 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+
+jwt:
+  secret: H5f9K3v2R8wL1Zx6Q0yT4pD7sV9uC2xMbhSDAAksdsao983sadasd3saasdasdQQWESDsdasdas
+  expiration: 86400
 
 eureka:
   instance:
