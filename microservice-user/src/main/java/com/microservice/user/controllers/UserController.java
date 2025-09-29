@@ -4,7 +4,6 @@ import com.microservice.user.dto.get.UserGetDto;
 import com.microservice.user.dto.post.UserPostDto;
 import com.microservice.user.dto.request.UserRequestDto;
 import com.microservice.user.services.UserServiceImpl;
-import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +11,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/users")
-@AllArgsConstructor
 public class UserController {
 
     private final UserServiceImpl userServiceImpl;
+    public UserController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
+    }
 
     // READ ALL → GET /users
     @GetMapping
@@ -32,7 +33,7 @@ public class UserController {
     }
 
     @GetMapping("/find-by-email")
-    public ResponseEntity<com.microservice.user.dto.get.UserGetDto> getUserByEmail(@RequestParam String email) {
+    public ResponseEntity<UserGetDto> getUserByEmail(@RequestParam String email) {
         UserGetDto user = userServiceImpl.findByEmail(email);
         return ResponseEntity.ok(user);
     }

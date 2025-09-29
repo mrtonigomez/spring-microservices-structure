@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         user.setEmail(userRequestDto.getEmail());
-        user.setFullName(userRequestDto.getName());
+        user.setFullName(userRequestDto.getFullName());
         user.setPassword(userRequestDto.getPassword());
 
         User updatedUser = userRepository.save(user);
@@ -65,9 +65,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserPostDto save(UserRequestDto userRequestDto) {
         User user = new User();
-        user.setFullName(userRequestDto.getName());
+        user.setFullName(userRequestDto.getFullName());
         user.setEmail(userRequestDto.getEmail());
-        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        user.setPassword(userRequestDto.getPassword());
         User userSaved = userRepository.save(user);
 
         UserPostDto userPostDto = new UserPostDto();

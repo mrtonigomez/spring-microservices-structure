@@ -1,8 +1,12 @@
 package com.microservice_authenticate.config;
 
+import com.microservice_authenticate.client.UserClient;
+import com.microservice_authenticate.client.dto.get.UserGetDto;
 import com.microservice_authenticate.persistance.UserRepository;
+import feign.FeignException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,16 +17,27 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 public class ApplicationConfiguration {
-    private final UserRepository userRepository;
+    private final UserClient userClient;
 
-    public ApplicationConfiguration(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public ApplicationConfiguration(UserClient userClient) {
+        this.userClient = userClient;
     }
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> {
+            try {
+                ResponseEntity<UserGetDto> userResponse = userClient.findByEmail(username); // llama al microservicio
+                UserGetDto user = userResponse.getBody();
+
+                return org.springframework.security.core.userdetails.User.builder()
+                        .username(user.getEmail())
+                        .password(user.getPassword()) // contraseña codificada
+                        .build();
+            } catch (FeignException.NotFound e) {
+                throw new UsernameNotFoundException("User not found");
+            }
+        };
     }
 
     @Bean

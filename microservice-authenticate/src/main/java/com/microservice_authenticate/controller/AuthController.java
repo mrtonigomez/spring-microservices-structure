@@ -1,5 +1,6 @@
 package com.microservice_authenticate.controller;
 
+import com.microservice_authenticate.client.dto.post.UserPostDto;
 import com.microservice_authenticate.dto.LoginResponse;
 import com.microservice_authenticate.dto.LoginUserDto;
 import com.microservice_authenticate.dto.RegisterUserDto;
@@ -21,10 +22,9 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
-        User registeredUser = authenticationService.signup(registerUserDto);
+    public ResponseEntity<UserPostDto> register(@RequestBody RegisterUserDto registerUserDto) {
 
-        return ResponseEntity.ok(registeredUser);
+        return authenticationService.signup(registerUserDto);
     }
 
     @PostMapping("/login")
