@@ -10,18 +10,24 @@ spring:
         locator:
           enabled: true
       routes:
-        - id: students
-          uri: 'http://localhost:8090'
+        - id: msvc-auth
+          uri: lb://msvc-auth   # nombre del servicio en el discovery
           predicates:
-            - Path=/api/student/**
-        - id: courses
-          uri: 'http://localhost:9090'
+              - Path=/api/auth/**
+        - id: user
+          uri: lb://msvc-user
           predicates:
-            - Path=/api/course/**
-        - id: auth
-          uri: 'http://localhost:9001'
-          predicates:
-            - Path=/api/auth/**
+            - Path=/api/users/**
+jwt:
+  secret: H5f9K3v2R8wL1Zx6Q0yT4pD7sV9uC2xMbhSDAAksdsao983sadasd3saasdasdQQWESDsdasdas
+  expiration: 86400
+
 eureka:
   client:
     register-with-eureka: false
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+
