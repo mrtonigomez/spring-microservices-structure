@@ -1,5 +1,6 @@
 package com.microservice_authenticate.controller;
 
+import com.microservice_authenticate.client.dto.get.UserGetDto;
 import com.microservice_authenticate.client.dto.post.UserPostDto;
 import com.microservice_authenticate.dto.LoginResponse;
 import com.microservice_authenticate.dto.LoginUserDto;
@@ -29,7 +30,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
+        UserGetDto authenticatedUser = authenticationService.authenticate(loginUserDto);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
 

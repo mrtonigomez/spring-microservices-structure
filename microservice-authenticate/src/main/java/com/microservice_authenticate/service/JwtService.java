@@ -1,5 +1,6 @@
 package com.microservice_authenticate.service;
 
+import com.microservice_authenticate.client.dto.get.UserGetDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -32,11 +33,11 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserGetDto userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> extraClaims, UserGetDto userDetails) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
@@ -46,13 +47,13 @@ public class JwtService {
 
     private String buildToken(
             Map<String, Object> extraClaims,
-            UserDetails userDetails,
+            UserGetDto userDetails,
             long expiration
     ) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(userDetails.getFullName())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date((new Date()).getTime() + (expiration * 1000)))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)

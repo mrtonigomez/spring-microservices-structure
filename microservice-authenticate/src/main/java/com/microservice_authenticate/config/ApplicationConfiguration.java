@@ -2,7 +2,6 @@ package com.microservice_authenticate.config;
 
 import com.microservice_authenticate.client.UserClient;
 import com.microservice_authenticate.client.dto.get.UserGetDto;
-import com.microservice_authenticate.persistance.UserRepository;
 import feign.FeignException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +13,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.ArrayList;
 
 @Configuration
 public class ApplicationConfiguration {
@@ -27,18 +28,32 @@ public class ApplicationConfiguration {
     UserDetailsService userDetailsService() {
         return username -> {
             try {
-                ResponseEntity<UserGetDto> userResponse = userClient.findByEmail(username); // llama al microservicio
+                ResponseEntity<UserGetDto> userResponse = userClient.getUserByEmail(username);
+
+                if (userResponse == null || userResponse.getBody() == null) {
+                    throw new UsernameNotFoundException("User not found with email: " + username);
+                }
+
                 UserGetDto user = userResponse.getBody();
+
+                if (user.getEmail() == null || user.getPassword() == null) {
+                    throw new UsernameNotFoundException("Invalid user data for email: " + username);
+                }
 
                 return org.springframework.security.core.userdetails.User.builder()
                         .username(user.getEmail())
-                        .password(user.getPassword()) // contraseña codificada
+                        .password(user.getPassword())
+                        .authorities(new ArrayList<>())
                         .build();
+
             } catch (FeignException.NotFound e) {
-                throw new UsernameNotFoundException("User not found");
+                throw new UsernameNotFoundException("User not found with email: " + username, e);
+            } catch (FeignException e) {
+                throw new RuntimeException("Error calling User Service", e);
             }
         };
     }
+
 
     @Bean
     BCryptPasswordEncoder passwordEncoder() {

@@ -9,14 +9,9 @@ import java.util.List;
 public interface UserService {
 
     List<UserGetDto> findAll();                      // Read all
-
     UserGetDto findById(Long id);
-    // Read by id
     UserGetDto findByEmail(String id);                    // Read by id
-
     UserPostDto update(Long id, UserRequestDto userRequestDto); // Update
-
     void delete(Long id);
-
     UserPostDto save (UserRequestDto user);
 }

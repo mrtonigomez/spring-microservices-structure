@@ -3,58 +3,61 @@ package com.microservice.user.controllers;
 import com.microservice.user.dto.get.UserGetDto;
 import com.microservice.user.dto.post.UserPostDto;
 import com.microservice.user.dto.request.UserRequestDto;
-import com.microservice.user.services.UserServiceImpl;
+import com.microservice.user.services.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/users")
+@RequestMapping("/api/users")
 public class UserController {
 
-    private final UserServiceImpl userServiceImpl;
-    public UserController(UserServiceImpl userServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    // READ ALL → GET /users
+    // ✅ Obtener todos los usuarios
     @GetMapping
     public ResponseEntity<List<UserGetDto>> getAllUsers() {
-        List<UserGetDto> users = userServiceImpl.findAll();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.findAll());
     }
 
-    // READ BY ID → GET /users/{id}
+    // ✅ Obtener un usuario por ID
     @GetMapping("/{id}")
     public ResponseEntity<UserGetDto> getUserById(@PathVariable Long id) {
-        UserGetDto user = userServiceImpl.findById(id);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userService.findById(id));
     }
 
-    @GetMapping("/find-by-email")
-    public ResponseEntity<UserGetDto> getUserByEmail(@RequestParam String email) {
-        UserGetDto user = userServiceImpl.findByEmail(email);
-        return ResponseEntity.ok(user);
+    // ✅ Obtener un usuario por email
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserGetDto> getUserByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(userService.findByEmail(email));
     }
 
-    // UPDATE → PUT /users/{id}
+    // ✅ Crear usuario nuevo
+    @PostMapping
+    public ResponseEntity<UserPostDto> createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
+        UserPostDto createdUser = userService.save(userRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+
+    // ✅ Actualizar usuario
     @PutMapping("/{id}")
     public ResponseEntity<UserPostDto> updateUser(@PathVariable Long id,
-                                                  @RequestBody UserRequestDto userRequestDto) {
-        UserPostDto updatedUser = userServiceImpl.update(id, userRequestDto);
-        return ResponseEntity.ok(updatedUser);
+                                                  @Valid @RequestBody UserRequestDto userRequestDto) {
+        return ResponseEntity.ok(userService.update(id, userRequestDto));
     }
 
-    // DELETE → DELETE /users/{id}
+    // ✅ Eliminar usuario
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userServiceImpl.delete(id);
+        userService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-    @PostMapping()
-    public ResponseEntity<UserPostDto> save(@RequestBody UserRequestDto userVO) {
-        return ResponseEntity.ok(userServiceImpl.save(userVO));
-    }
 }
+

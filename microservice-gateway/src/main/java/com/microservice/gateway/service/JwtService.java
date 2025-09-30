@@ -1,8 +1,8 @@
 package com.microservice.gateway.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.microservice.gateway.exceptions.JwtExpiredException;
+import com.microservice.gateway.exceptions.JwtInvalidException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,10 +43,18 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)))
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException ex) {
+            // Token expirado
+            throw new JwtExpiredException("JWT token has expired", ex);
+        } catch (JwtException | IllegalArgumentException ex) {
+            // Token malformado o inválido
+            throw new JwtInvalidException("Invalid JWT token", ex);
+        }
     }
 }

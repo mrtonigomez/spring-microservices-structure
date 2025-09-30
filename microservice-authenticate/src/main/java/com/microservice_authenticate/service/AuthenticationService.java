@@ -1,11 +1,11 @@
 package com.microservice_authenticate.service;
 
 import com.microservice_authenticate.client.UserClient;
+import com.microservice_authenticate.client.dto.get.UserGetDto;
 import com.microservice_authenticate.client.dto.post.UserPostDto;
 import com.microservice_authenticate.client.dto.request.UserRequestDto;
 import com.microservice_authenticate.dto.LoginUserDto;
 import com.microservice_authenticate.dto.RegisterUserDto;
-import com.microservice_authenticate.entities.User;
 import com.microservice_authenticate.persistance.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationService {
 
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserClient userClient;
@@ -28,7 +27,6 @@ public class AuthenticationService {
             UserClient userClient
     ) {
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userClient = userClient;
     }
@@ -39,10 +37,10 @@ public class AuthenticationService {
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
 
-        return userClient.save(user);
+        return userClient.createUser(user);
     }
 
-    public User authenticate(LoginUserDto input) {
+    public UserGetDto authenticate(LoginUserDto input) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getEmail(),
@@ -50,7 +48,6 @@ public class AuthenticationService {
                 )
         );
 
-        return userRepository.findByEmail(input.getEmail())
-                .orElseThrow();
+        return userClient.getUserByEmail(input.getEmail()).getBody();
     }
 }
